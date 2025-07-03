@@ -43,35 +43,41 @@ export default ({ droppingItem }) => {
         setLayout(newCircuit.layout);
     };
 
- const updateCG = (currentLayout, layoutItem, event) => {
+const updateCG = (currentLayout, layoutItem, event, itemIdToRemove) => {
   const customGate = operators.find(op => op.id === 'CustomGate');
   if (!customGate) return;
 
   const componentsToAdd = customGate.components;
+console.log("Removing gate:", itemIdToRemove);
+console.log("Original layout:", currentLayout);
+        console.log(layout);
+  // Filter out the original CG block by its ID
+  const updatedLayout = currentLayout
+    .filter(item => item.i !== itemIdToRemove && item.i !== '__dropping-elem__')
+    .map(item => ({
+      ...item,
+      gateId: layout.find(i => i.i === item.i)?.gateId,
+    }));
 
-  const updatedLayout = currentLayout.filter(
-    item => item.i !== '__dropping-elem__' && item.y < gridDimenY,
-  ).map(item => ({
-    ...item,
-    gateId: layout.find(i => i.i === item.i)?.gateId,
-  }));
-
+  // Add the component gates based on layoutItem's position
   componentsToAdd.forEach(component => {
     updatedLayout.push({
-      i: new Date().getTime().toString() + Math.random(), // unique id
+      i: `${Date.now()}-${Math.random()}`,
       gateId: component.gateId,
-      x: layoutItem.x + component.x,  // 🔥 place relative to clicked gate
+      x: layoutItem.x + component.x,
       y: layoutItem.y + component.y,
       w: component.w,
       h: component.h,
       isResizable: false,
     });
+    console.log("New layout after expansion:", updatedLayout);
   });
 
-  handleCircuitChange({
-    layout: updatedLayout,
-  });
+  // Update the layout
+  handleCircuitChange({ layout: updatedLayout });
+          console.log(layout);
 };
+
 
 
 
@@ -218,6 +224,7 @@ export default ({ droppingItem }) => {
                                 components={gate.components ?? []}
                                 updateCG={updateCG}
                                 layout={layout}
+                                
                             />
                         </div>
                     );

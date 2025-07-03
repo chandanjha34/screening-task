@@ -28,21 +28,29 @@ export default function Operator({ title, itemId, fill, height, width, component
         {isCustom && <button
             aria-label="Toggle X-Ray Mode"
             className={`${!isXRayMode && 'group-hover:block hidden'} relative top-0 left-0 bg-white cursor-pointer border border-gray-300 z-50 rounded-full shadow -translate-1/2`}
-            onClick={(e) => {
+onClick={(e) => {
   e.stopPropagation();
-
   const currentGate = layout.find(g => g.i === itemId);
   if (!currentGate) return;
+    
+  updateCG?.(
+    layout,
+    {
+      x: currentGate.x,
+      y: currentGate.y,
+      w: currentGate.w,
+      h: currentGate.h,
+    },
+    e,
+    itemId 
+    // 👈 this is critical: pass the current gate ID to be removed
+  );
+  console.log(itemId)
+  
 
-  setIsXRayMode(prev => !prev); // First toggle view
-
-  updateCG?.(layout, {
-    x: currentGate.x,
-    y: currentGate.y,
-    w: currentGate.w,
-    h: currentGate.h
-  }, {});
+  setIsXRayMode(!isXRayMode);
 }}
+
 
             style={{ width: 18, height: 18, minWidth: 0, padding: 0, zIndex: 100 }}
         >
