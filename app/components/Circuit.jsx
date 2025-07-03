@@ -43,6 +43,38 @@ export default ({ droppingItem }) => {
         setLayout(newCircuit.layout);
     };
 
+ const updateCG = (currentLayout, layoutItem, event) => {
+  const customGate = operators.find(op => op.id === 'CustomGate');
+  if (!customGate) return;
+
+  const componentsToAdd = customGate.components;
+
+  const updatedLayout = currentLayout.filter(
+    item => item.i !== '__dropping-elem__' && item.y < gridDimenY,
+  ).map(item => ({
+    ...item,
+    gateId: layout.find(i => i.i === item.i)?.gateId,
+  }));
+
+  componentsToAdd.forEach(component => {
+    updatedLayout.push({
+      i: new Date().getTime().toString() + Math.random(), // unique id
+      gateId: component.gateId,
+      x: layoutItem.x + component.x,  // 🔥 place relative to clicked gate
+      y: layoutItem.y + component.y,
+      w: component.w,
+      h: component.h,
+      isResizable: false,
+    });
+  });
+
+  handleCircuitChange({
+    layout: updatedLayout,
+  });
+};
+
+
+
     // Handle dropping a new gate onto the circuit
     const onDrop = (newLayout, layoutItem, event) => {
         event.preventDefault();
@@ -184,6 +216,8 @@ export default ({ droppingItem }) => {
                                 fill={gate.fill}
                                 isCustom={gate.isCustom}
                                 components={gate.components ?? []}
+                                updateCG={updateCG}
+                                layout={layout}
                             />
                         </div>
                     );
